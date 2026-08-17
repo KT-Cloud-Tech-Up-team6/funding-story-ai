@@ -1,0 +1,281 @@
+from __future__ import annotations
+
+import re
+from dataclasses import dataclass
+from decimal import Decimal, InvalidOperation
+from typing import Any
+
+
+@dataclass(frozen=True, slots=True)
+class StoryWarning:
+    code: str
+    message: str
+    section_id: str | None = None
+    source_fields: tuple[str, ...] = ()
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "code": self.code,
+            "message": self.message,
+            "section_id": self.section_id,
+            "source_fields": list(self.source_fields),
+        }
+
+
+def brief_source_fields(brief: dict[str, Any]) -> set[str]:
+    values = {
+        "product.name",
+        "product.summary",
+        "product.category",
+        "product.product_type",
+        "schedule_policy",
+    }
+    for group in (
+        brief["product"]["facts"],
+        brief["audiences"],
+        brief["problems"],
+        brief["features"],
+        brief["claims"],
+        brief["evidence"],
+        brief["assets"],
+        brief["rewards"],
+    ):
+        values.update(item["id"] for item in group)
+    values.update(f"unknown.{item['field']}" for item in brief["unknowns"])
+    return values
+
+
+_NUMBER = re.compile(r"(?<![A-Za-z])\d[\d,]*(?:\.\d+)?")
+_ORDERED_LIST_MARKER = re.compile(r"(?m)^\s*\d+[.)]\s+")
+_UNKNOWN_OVERREACH = re.compile(
+    r"확인\s*중|확정\s*준비\s*중|추후.{0,20}(?:공지|안내|업데이트)|"
+    r"정식\s*오픈\s*시|확정되는\s*대로|안내드리겠습니다|공지될\s*예정"
+)
+_UNSUPPORTED_PRODUCT_ATTRIBUTE = re.compile(
+    r"(?:(?:자사|클린포지)\s*)?전용\s*(?:모바일\s*)?앱"
+)
+_INTERNAL_IDENTIFIER = re.compile(r"\bunknown\.[A-Za-z0-9_.-]+\b")
+
+_CONCEPT_GUARDS = (
+    (
+        "unsupported-generated-text",
+        re.compile(r"자동\s*먼지(?:통)?\s*비움"),
+        re.compile(r"자동\s*먼지(?:통)?\s*비움"),
+        "먼지 비움의 자동 동작",
+    ),
+    (
+        "unsupported-generated-text",
+        re.compile(r"(?:스테이션|도크)(?:로|으로)?\s*(?:자동\s*)?복귀"),
+        re.compile(r"(?:자동\s*)?복귀"),
+        "도크 자동 복귀",
+    ),
+    (
+        "unsupported-generated-text",
+        re.compile(r"정수통.{0,30}(?:채움|보충|수동)"),
+        re.compile(r"정수통.{0,30}(?:채움|보충|수동)"),
+        "정수통 관리 방식",
+    ),
+    (
+        "unsupported-generated-text",
+        re.compile(r"오수통.{0,30}(?:비움|교체|수동)"),
+        re.compile(r"오수통.{0,30}(?:비움|교체|수동)"),
+        "오수통 관리 방식",
+    ),
+    (
+        "unsupported-generated-text",
+        re.compile(r"먼지봉투.{0,30}(?:교체|수동)"),
+        re.compile(r"먼지봉투.{0,30}(?:교체|수동)"),
+        "먼지봉투 관리 방식",
+    ),
+    (
+        "unsupported-generated-text",
+        re.compile(r"앱\s*연동\s*경험"),
+        re.compile(r"앱\s*연동\s*경험"),
+        "앱 연동 경험",
+    ),
+    (
+        "source-role-imprecision",
+        re.compile(r"전면(?:\s*구조광)?\s*센서.{0,20}경로(?:를|을)\s*감지"),
+        re.compile(r"경로(?:를|을)\s*감지"),
+        "전면 센서의 경로 감지",
+    ),
+)
+
+
+def _number_key(value: str) -> Decimal | None:
+    try:
+        return Decimal(value.replace(",", ""))
+    except InvalidOperation:
+        return None
+
+
+def _all_string_values(value: object) -> list[str]:
+    if isinstance(value, dict):
+        return [item for child in value.values() for item in _all_string_values(child)]
+    if isinstance(value, list):
+        return [item for child in value for item in _all_string_values(child)]
+    return [str(value)] if isinstance(value, (str, int, float)) else []
+
+
+def allowed_numbers(brief: dict[str, Any]) -> set[Decimal]:
+    result: set[Decimal] = set()
+    for text in _all_string_values(brief):
+        for token in _NUMBER.findall(text):
+            parsed = _number_key(token)
+            if parsed is not None:
+                result.add(parsed)
+    return result
+
+
+def claim_number_tokens(prose: str) -> list[str]:
+    """Return factual number candidates, excluding ordered-list labels."""
+
+    return _NUMBER.findall(_ORDERED_LIST_MARKER.sub("", prose))
+
+
+class StoryValidator:
+    def validate(
+        self,
+        *,
+        content: dict[str, Any],
+        brief: dict[str, Any],
+        template: dict[str, Any],
+    ) -> list[StoryWarning]:
+        warnings: list[StoryWarning] = []
+        expected = template["layout"]
+        actual = content["sections"]
+        expected_ids = [section["id"] for section in expected]
+        actual_ids = [section["template_section_id"] for section in actual]
+
+        for section_id in expected_ids:
+            if section_id not in actual_ids:
+                warnings.append(
+                    StoryWarning(
+                        "missing-template-section",
+                        f"템플릿 섹션이 생성되지 않았습니다: {section_id}",
+                        section_id,
+                    )
+                )
+        for section_id in actual_ids:
+            if section_id not in expected_ids:
+                warnings.append(
+                    StoryWarning(
+                        "extra-template-section",
+                        f"템플릿에 없는 섹션이 생성됐습니다: {section_id}",
+                        section_id,
+                    )
+                )
+        if actual_ids != expected_ids:
+            warnings.append(
+                StoryWarning(
+                    "section-order-mismatch",
+                    "생성 섹션의 순서가 템플릿 layout과 다릅니다.",
+                )
+            )
+
+        expected_by_id = {section["id"]: section for section in expected}
+        allowed_sources = brief_source_fields(brief)
+        grounded_numbers = allowed_numbers(brief)
+        brief_prose = " ".join(_all_string_values(brief))
+        for section in actual:
+            section_id = section["template_section_id"]
+            expected_section = expected_by_id.get(section_id)
+            if expected_section is not None:
+                if section["type"] != expected_section["type"]:
+                    warnings.append(
+                        StoryWarning(
+                            "section-type-mismatch",
+                            f"{section_id} type은 {expected_section['type']}이어야 합니다.",
+                            section_id,
+                        )
+                    )
+                if section["image_intent"]["required"] != expected_section["image_required"]:
+                    warnings.append(
+                        StoryWarning(
+                            "image-contract-mismatch",
+                            f"{section_id} 이미지 필요 여부가 템플릿과 다릅니다.",
+                            section_id,
+                        )
+                    )
+
+            referenced = set(section["source_fields"]) | set(
+                section["image_intent"]["source_fields"]
+            )
+            unknown_sources = sorted(referenced - allowed_sources)
+            if unknown_sources:
+                warnings.append(
+                    StoryWarning(
+                        "unknown-source-field",
+                        f"브리프에 없는 source_fields: {', '.join(unknown_sources)}",
+                        section_id,
+                        tuple(unknown_sources),
+                    )
+                )
+
+            prose = f"{section['heading']} {section['body']}"
+            unlisted = sorted(
+                {
+                    token
+                    for token in claim_number_tokens(prose)
+                    if _number_key(token) not in grounded_numbers
+                }
+            )
+            if unlisted:
+                warnings.append(
+                    StoryWarning(
+                        "unlisted-number",
+                        f"브리프에서 찾지 못한 수치: {', '.join(unlisted)}",
+                        section_id,
+                        tuple(section["source_fields"]),
+                    )
+                )
+            if any(source.startswith("unknown.") for source in referenced) and (
+                match := _UNKNOWN_OVERREACH.search(prose)
+            ):
+                warnings.append(
+                    StoryWarning(
+                        "unsupported-future-commitment",
+                        "미확인 정보에 입력되지 않은 현재 진행 상태 또는 미래 약속을 "
+                        f"추가했습니다: {match.group(0)}",
+                        section_id,
+                        tuple(
+                            sorted(
+                                source
+                                for source in referenced
+                                if source.startswith("unknown.")
+                            )
+                        ),
+                    )
+                )
+            if match := _UNSUPPORTED_PRODUCT_ATTRIBUTE.search(prose):
+                warnings.append(
+                    StoryWarning(
+                        "unsupported-generated-text",
+                        f"입력에 없는 제품 속성을 추가했습니다: {match.group(0)}",
+                        section_id,
+                        tuple(section["source_fields"]),
+                    )
+                )
+            if match := _INTERNAL_IDENTIFIER.search(prose):
+                warnings.append(
+                    StoryWarning(
+                        "internal-identifier-leak",
+                        f"사용자 본문에 내부 필드 ID를 노출했습니다: {match.group(0)}",
+                        section_id,
+                        tuple(section["source_fields"]),
+                    )
+                )
+            for code, output_pattern, required_pattern, label in _CONCEPT_GUARDS:
+                if (match := output_pattern.search(prose)) and not required_pattern.search(
+                    brief_prose
+                ):
+                    warnings.append(
+                        StoryWarning(
+                            code,
+                            f"브리프에 없는 개념 확장 또는 동작을 추가했습니다: "
+                            f"{label} ({match.group(0)})",
+                            section_id,
+                            tuple(section["source_fields"]),
+                        )
+                    )
+        return warnings

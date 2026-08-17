@@ -1,0 +1,308 @@
+{
+  "schema_version": "story-brief-v1",
+  "brief_id": "cleanforge-r1-synthetic-v1",
+  "language": "ko",
+  "source": {
+    "project_id": null,
+    "project_url": null,
+    "purpose": "synthetic-fixture",
+    "snapshot_date": "2026-08-15",
+    "refs": [
+      {
+        "source_id": "source_maker_input",
+        "source_type": "maker-input",
+        "location": "examples/robot-vacuum/brief.json",
+        "captured_at": null
+      },
+      {
+        "source_id": "source_product_image",
+        "source_type": "image",
+        "location": "examples/robot-vacuum/product-reference.png",
+        "captured_at": null
+      },
+      {
+        "source_id": "source_suction_test",
+        "source_type": "test-report",
+        "location": "synthetic:CF-LAB-2026-01",
+        "captured_at": null
+      },
+      {
+        "source_id": "source_runtime_test",
+        "source_type": "test-report",
+        "location": "synthetic:CF-LAB-2026-02",
+        "captured_at": null
+      }
+    ]
+  },
+  "product": {
+    "name": "클린포지 R1",
+    "category": "테크·가전",
+    "product_type": "올인원 도킹 스테이션 로봇청소기",
+    "summary": "흡입과 듀얼 회전형 물걸레 청소를 수행하고 도킹 스테이션에서 먼지 비움·물걸레 세척·온풍 건조를 지원하는 가상 제품",
+    "facts": [
+      {
+        "id": "fact_suction_max",
+        "name": "최대 흡입력",
+        "value": 8000,
+        "unit": "Pa",
+        "source_refs": ["source_maker_input", "source_suction_test"]
+      },
+      {
+        "id": "fact_battery_capacity",
+        "name": "배터리 정격 용량",
+        "value": 5200,
+        "unit": "mAh",
+        "source_refs": ["source_maker_input"]
+      },
+      {
+        "id": "fact_runtime_max",
+        "name": "최대 작동 시간",
+        "value": 180,
+        "unit": "분",
+        "source_refs": ["source_maker_input", "source_runtime_test"]
+      },
+      {
+        "id": "fact_mop_rotation",
+        "name": "회전형 물걸레 회전 속도",
+        "value": 180,
+        "unit": "rpm",
+        "source_refs": ["source_maker_input"]
+      },
+      {
+        "id": "fact_mop_lift",
+        "name": "물걸레 리프트 최대 높이",
+        "value": 10,
+        "unit": "mm",
+        "source_refs": ["source_maker_input"]
+      },
+      {
+        "id": "fact_mop_wash_temperature",
+        "name": "물걸레 세척수 목표 온도",
+        "value": 55,
+        "unit": "°C",
+        "source_refs": ["source_maker_input"]
+      },
+      {
+        "id": "fact_mop_dry_temperature",
+        "name": "물걸레 건조 공기 목표 온도",
+        "value": 45,
+        "unit": "°C",
+        "source_refs": ["source_maker_input"]
+      },
+      {
+        "id": "fact_clean_tank",
+        "name": "정수통 공칭 용량",
+        "value": 4.0,
+        "unit": "L",
+        "source_refs": ["source_maker_input"]
+      },
+      {
+        "id": "fact_dirty_tank",
+        "name": "오수통 공칭 용량",
+        "value": 3.5,
+        "unit": "L",
+        "source_refs": ["source_maker_input"]
+      },
+      {
+        "id": "fact_dust_bag",
+        "name": "먼지봉투 공칭 용량",
+        "value": 3.0,
+        "unit": "L",
+        "source_refs": ["source_maker_input"]
+      },
+      {
+        "id": "fact_robot_dimensions",
+        "name": "본체 크기",
+        "value": "350 × 350 × 103",
+        "unit": "mm",
+        "source_refs": ["source_maker_input"]
+      },
+      {
+        "id": "fact_dock_dimensions",
+        "name": "도크 크기",
+        "value": "420 × 450 × 530",
+        "unit": "mm",
+        "source_refs": ["source_maker_input"]
+      },
+      {
+        "id": "fact_team_size",
+        "name": "가상 예제 팀 인원",
+        "value": 4,
+        "unit": "명",
+        "source_refs": ["source_maker_input"]
+      },
+      {
+        "id": "fact_development_period",
+        "name": "가상 시제품 설계 기간",
+        "value": 18,
+        "unit": "개월",
+        "source_refs": ["source_maker_input"]
+      }
+    ]
+  },
+  "audiences": [
+    {
+      "id": "aud_dual_income",
+      "description": "매일 바닥 청소 시간을 줄이고 싶은 맞벌이 가구",
+      "source_refs": ["source_maker_input"]
+    },
+    {
+      "id": "aud_pet_household",
+      "description": "반려동물의 털과 바닥 먼지를 자주 관리하는 가구",
+      "source_refs": ["source_maker_input"]
+    },
+    {
+      "id": "aud_mixed_floor",
+      "description": "마루와 단모 카펫이 함께 있는 주거 공간 사용자",
+      "source_refs": ["source_maker_input"]
+    }
+  ],
+  "problems": [
+    {
+      "id": "problem_repeated_cleaning",
+      "description": "흡입 청소와 물걸레 청소를 따로 반복해야 하는 번거로움",
+      "source_refs": ["source_maker_input"]
+    },
+    {
+      "id": "problem_aftercare",
+      "description": "청소 후 먼지통을 비우고 물걸레를 직접 세척·건조해야 하는 관리 부담",
+      "source_refs": ["source_maker_input"]
+    },
+    {
+      "id": "problem_room_settings",
+      "description": "방마다 청소 구역과 강도를 다시 설정하는 번거로움",
+      "source_refs": ["source_maker_input"]
+    }
+  ],
+  "features": [
+    {
+      "id": "feature_navigation",
+      "name": "LDS 지도 생성과 전면 장애물 감지",
+      "description": "상단 LDS로 공간 지도를 만들고 전면 구조광 센서로 진행 경로의 장애물을 감지하도록 설계",
+      "fact_ids": [],
+      "evidence_ids": [],
+      "source_refs": ["source_maker_input", "source_product_image"]
+    },
+    {
+      "id": "feature_vacuum_mop",
+      "name": "흡입과 듀얼 회전형 물걸레",
+      "description": "흡입 청소와 두 개의 회전형 물걸레 청소를 한 번의 경로에서 수행",
+      "fact_ids": ["fact_suction_max", "fact_mop_rotation"],
+      "evidence_ids": ["evidence_suction_test"],
+      "source_refs": ["source_maker_input", "source_suction_test"]
+    },
+    {
+      "id": "feature_carpet_lift",
+      "name": "카펫 감지 물걸레 리프트",
+      "description": "카펫을 감지하면 물걸레 모듈을 최대 10mm 들어 올리도록 설계",
+      "fact_ids": ["fact_mop_lift"],
+      "evidence_ids": [],
+      "source_refs": ["source_maker_input"]
+    },
+    {
+      "id": "feature_all_in_one_dock",
+      "name": "올인원 도킹 스테이션",
+      "description": "자동 먼지 비움, 물걸레 세척, 온풍 건조와 본체 충전을 지원",
+      "fact_ids": [
+        "fact_mop_wash_temperature",
+        "fact_mop_dry_temperature",
+        "fact_clean_tank",
+        "fact_dirty_tank",
+        "fact_dust_bag"
+      ],
+      "evidence_ids": [],
+      "source_refs": ["source_maker_input", "source_product_image"]
+    },
+    {
+      "id": "feature_app",
+      "name": "공간별 앱 제어",
+      "description": "청소 예약, 방 선택, 금지 구역과 흡입 단계 설정을 지원",
+      "fact_ids": [],
+      "evidence_ids": [],
+      "source_refs": ["source_maker_input"]
+    }
+  ],
+  "claims": [
+    {
+      "id": "claim_suction_max",
+      "statement": "최대 모드 자체 시험 장비에서 최대 8,000Pa로 측정",
+      "status": "supported",
+      "evidence_ids": ["evidence_suction_test"],
+      "source_refs": ["source_maker_input", "source_suction_test"]
+    },
+    {
+      "id": "claim_runtime_max",
+      "statement": "완전 충전·저소음·흡입만·장애물 없는 마루 조건에서 최대 180분 작동",
+      "status": "supported",
+      "evidence_ids": ["evidence_runtime_test"],
+      "source_refs": ["source_maker_input", "source_runtime_test"]
+    },
+    {
+      "id": "claim_maker_team",
+      "statement": "생활가전 기구 설계·펌웨어·앱 경험을 가진 가상 4인 팀이 18개월간 시제품을 설계",
+      "status": "maker-stated-unverified",
+      "evidence_ids": [],
+      "source_refs": ["source_maker_input"]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "evidence_suction_test",
+      "evidence_type": "test-report",
+      "description": "CF-LAB-2026-01 합성 자체 흡입력 시험 기록. 실제 기관 시험이 아님",
+      "supports_claim_ids": ["claim_suction_max"],
+      "source_refs": ["source_suction_test"]
+    },
+    {
+      "id": "evidence_runtime_test",
+      "evidence_type": "test-report",
+      "description": "CF-LAB-2026-02 합성 자체 작동 시간 시험 기록. 실제 기관 시험이 아님",
+      "supports_claim_ids": ["claim_runtime_max"],
+      "source_refs": ["source_runtime_test"]
+    }
+  ],
+  "assets": [
+    {
+      "id": "asset_product_hero",
+      "asset_type": "product",
+      "description": "웜화이트·차콜 원형 본체와 세로형 도크가 있는 텍스트 없는 합성 제품 이미지",
+      "allowed_sections": ["hero", "automation_journey", "performance_proof"],
+      "source_refs": ["source_product_image"]
+    }
+  ],
+  "rewards": [],
+  "schedule_policy": {
+    "funding_end": null,
+    "shipping_start": null,
+    "refund_policy": null,
+    "as_policy": null,
+    "source_refs": []
+  },
+  "unknowns": [
+    {
+      "field": "reward_price_and_components",
+      "question": "리워드 가격·구성·수량은 무엇인가요?",
+      "blocks_sections": ["reward"]
+    },
+    {
+      "field": "funding_and_shipping_schedule",
+      "question": "펀딩 종료일과 발송 시작일은 언제인가요?",
+      "blocks_sections": ["project_detail"]
+    },
+    {
+      "field": "certification",
+      "question": "필요한 인증의 취득 상태와 적용 모델은 무엇인가요?",
+      "blocks_sections": ["performance_proof", "project_detail"]
+    },
+    {
+      "field": "as_and_refund_policy",
+      "question": "AS 기간·범위와 환불 정책은 무엇인가요?",
+      "blocks_sections": ["service", "project_detail"]
+    },
+    {
+      "field": "social_proof",
+      "question": "검증 가능한 후기·판매·수상 이력이 있나요?",
+      "blocks_sections": ["social_proof"]
+    }
+  ]
+}

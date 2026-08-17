@@ -1,0 +1,163 @@
+{
+  "schema_version": "funding-story-template-v1",
+  "id": "t01_performance_value_evidence",
+  "template_name": "로봇청소기 성능·가성비·증빙형",
+  "category": "테크·가전",
+  "language": "ko",
+  "generation_source": "manual-analysis",
+  "target": "가격과 핵심 성능 수치를 함께 비교하고 구매 근거를 확인하려는 로봇청소기 관심 사용자",
+  "default_word_count": 1800,
+  "narration_mode": "evidence_first",
+  "style": {
+    "tone_keywords": ["명확함", "실용적", "검증중심"],
+    "sentence_style": "짧은 결론 뒤에 조건·수치·근거를 분리해 설명",
+    "visual_mood": "제품 수치와 작동 원리를 빠르게 비교할 수 있는 기술 문서형 구성",
+    "color_palette": ["#111827", "#2563EB", "#F8FAFC"],
+    "font_style": "Sans-serif",
+    "typography": "핵심 수치는 대형, 측정 조건과 주석은 본문보다 작게 표현",
+    "urgency_style": "입력된 수량·기간이 있을 때만 제한 조건을 사실 그대로 표시",
+    "cta_style": "제품 사양과 증빙을 확인한 뒤 리워드 구성을 비교하도록 안내"
+  },
+  "content_strategy": {
+    "core_message": "핵심 성능과 가격 제안을 먼저 제시하고 각 수치의 조건·증빙·사용 편익을 순서대로 연결한다.",
+    "product_keywords": ["로봇청소기", "흡입성능", "청소자동화", "가성비", "성능증빙"],
+    "success_metrics": ["핵심 수치의 입력 사실 일치", "주장별 증빙 연결", "가격·구성 정보 누락 없음"],
+    "emphasis_phrases": {
+      "performance": ["측정 조건과 함께 제시", "입력된 수치만 사용"],
+      "value": ["구성과 가격을 분리해 비교", "할인율은 기준 가격이 있을 때만 계산"],
+      "evidence": ["증빙 ID 연결", "근거 부족 시 검토 필요 표시"]
+    }
+  },
+  "layout": [
+    {
+      "id": "hero",
+      "label": "핵심 제안",
+      "type": "intro",
+      "summary": "가격과 대표 성능을 한 화면에서 제시",
+      "expected_content": "제품명, 한 문장 제안, 입력된 대표 성능 수치, 리워드 가격과 각 수치의 출처 ID",
+      "visual_hint": "제품 전체 이미지와 대표 수치 카드. 측정 조건이 있으면 같은 화면에 주석 배치",
+      "content_type": "image_full_overlay",
+      "image_required": true,
+      "overlay_content": "{{headline}} · {{primary_metric}} · {{reward_price}}",
+      "html_content": "<section class=\"hero\"><h1>{{headline}}</h1><p>{{value_proposition}}</p><dl>{{verified_metrics}}</dl></section>",
+      "html_structure": "full-width hero with metric cards"
+    },
+    {
+      "id": "problem",
+      "label": "사용 문제",
+      "type": "problem",
+      "summary": "타깃이 겪는 청소 문제를 입력 사실에 근거해 정의",
+      "expected_content": "사용자·사용 공간·기존 방식의 불편과 연결된 PROBLEM ID",
+      "visual_hint": "사용 환경 이미지와 문제별 짧은 문장. 확인되지 않은 보편화 표현 금지",
+      "content_type": "text_image",
+      "image_required": false,
+      "overlay_content": null,
+      "html_content": "<section class=\"problem\"><h2>{{problem_heading}}</h2><ul>{{problem_items}}</ul></section>",
+      "html_structure": "two-column problem list"
+    },
+    {
+      "id": "value_anchor",
+      "label": "가격·구성 비교",
+      "type": "offer",
+      "summary": "기준 가격과 리워드 구성을 사실 단위로 비교",
+      "expected_content": "리워드명, 구성품, 가격, 수량, 비교 기준 가격과 출처. 기준이 없으면 할인율 제외",
+      "visual_hint": "가격과 구성품을 분리한 표. 취소선 가격은 검증된 기준 가격에만 사용",
+      "content_type": "comparison_table",
+      "image_required": false,
+      "overlay_content": null,
+      "html_content": "<section class=\"offer\"><h2>{{offer_heading}}</h2><table>{{reward_comparison}}</table></section>",
+      "html_structure": "centered reward comparison table"
+    },
+    {
+      "id": "core_performance",
+      "label": "핵심 성능",
+      "type": "feature",
+      "summary": "대표 성능 수치와 실제 사용 편익을 연결",
+      "expected_content": "FEATURE·FACT·CLAIM ID, 단위, 측정 조건, 사용 편익과 연결 가능한 EVIDENCE ID",
+      "visual_hint": "성능 데모 또는 시험 이미지와 수치·조건·한계를 한 블록에 배치",
+      "content_type": "metric_evidence",
+      "image_required": true,
+      "overlay_content": "{{verified_metric}}",
+      "html_content": "<section class=\"feature\"><h2>{{feature_heading}}</h2><p>{{feature_benefit}}</p><aside>{{measurement_condition}}</aside></section>",
+      "html_structure": "metric-led feature with evidence note"
+    },
+    {
+      "id": "mechanism",
+      "label": "작동 원리",
+      "type": "mechanism",
+      "summary": "성능을 만드는 부품·센서·제어 방식을 설명",
+      "expected_content": "입력된 작동 단계와 부품·센서 사실. 성능 인과 주장은 증빙이 있을 때만 포함",
+      "visual_hint": "분해도, 작동 순서 또는 전후 흐름. 실제 제공된 에셋만 사용",
+      "content_type": "process_diagram",
+      "image_required": false,
+      "overlay_content": null,
+      "html_content": "<section class=\"mechanism\"><h2>{{mechanism_heading}}</h2><ol>{{mechanism_steps}}</ol></section>",
+      "html_structure": "numbered mechanism sequence"
+    },
+    {
+      "id": "feature_suite",
+      "label": "기능 모음",
+      "type": "feature",
+      "summary": "대표 성능 외 주요 기능을 우선순위대로 정리",
+      "expected_content": "최대 5개의 FEATURE ID와 각 기능의 사실·사용 조건·연결 증빙",
+      "visual_hint": "기능별 동일한 카드 규격과 아이콘 또는 제품 상세 이미지",
+      "content_type": "feature_cards",
+      "image_required": false,
+      "overlay_content": null,
+      "html_content": "<section class=\"features\"><h2>{{features_heading}}</h2><div>{{feature_cards}}</div></section>",
+      "html_structure": "repeatable feature card grid"
+    },
+    {
+      "id": "usability",
+      "label": "사용 방법",
+      "type": "detail",
+      "summary": "설치·앱 연결·청소 실행·관리 과정을 설명",
+      "expected_content": "사용 단계, 앱 지원 조건, 관리 주기와 주의사항. 확인되지 않은 단계는 미입력 표시",
+      "visual_hint": "단계별 화면 또는 손 동작 이미지와 번호",
+      "content_type": "step_guide",
+      "image_required": false,
+      "overlay_content": null,
+      "html_content": "<section class=\"usage\"><h2>{{usage_heading}}</h2><ol>{{usage_steps}}</ol></section>",
+      "html_structure": "numbered usage guide"
+    },
+    {
+      "id": "trust",
+      "label": "증빙·신뢰",
+      "type": "evidence",
+      "summary": "인증·시험·수상·보험·AS 정보를 주장과 연결",
+      "expected_content": "EVIDENCE ID, 발급·시험 주체, 적용 대상·기간·범위와 지원 CLAIM ID",
+      "visual_hint": "증빙 문서 썸네일과 적용 범위를 텍스트로 병기",
+      "content_type": "evidence_list",
+      "image_required": false,
+      "overlay_content": null,
+      "html_content": "<section class=\"evidence\"><h2>{{trust_heading}}</h2><ul>{{evidence_items}}</ul></section>",
+      "html_structure": "evidence list with scope labels"
+    },
+    {
+      "id": "faq",
+      "label": "FAQ",
+      "type": "faq",
+      "summary": "구매 전 확인해야 할 성능·관리·호환 질문 정리",
+      "expected_content": "입력 자료로 답할 수 있는 질문과 답변. 답변 근거가 없으면 질문 목록만 생성",
+      "visual_hint": "접고 펼치는 질문 목록",
+      "content_type": "accordion",
+      "image_required": false,
+      "overlay_content": null,
+      "html_content": "<section class=\"faq\"><h2>FAQ</h2><div>{{faq_items}}</div></section>",
+      "html_structure": "accordion question list"
+    },
+    {
+      "id": "project_detail",
+      "label": "프로젝트 상세",
+      "type": "policy",
+      "summary": "리워드·일정·배송·환불·AS 정보를 마무리에 제공",
+      "expected_content": "REWARD와 SCHEDULE_POLICY 입력값, 미확인 항목과 문의 경로",
+      "visual_hint": "표와 일정 타임라인. 값이 없는 항목은 추정하지 않음",
+      "content_type": "detail_table",
+      "image_required": false,
+      "overlay_content": null,
+      "html_content": "<section class=\"project-detail\"><h2>{{detail_heading}}</h2><dl>{{policy_details}}</dl></section>",
+      "html_structure": "policy definition list and timeline"
+    }
+  ]
+}

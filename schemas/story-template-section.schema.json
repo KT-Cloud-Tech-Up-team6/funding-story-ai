@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://funding-story-ai.local/schemas/story-template-section.schema.json",
+  "title": "Funding Story Template Section",
+  "description": "섹션의 역할·기대 콘텐츠·시각 힌트·편집 가능한 HTML 골격을 정의한다.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "label",
+    "type",
+    "summary",
+    "expected_content",
+    "visual_hint",
+    "content_type",
+    "image_required",
+    "overlay_content",
+    "html_content",
+    "html_structure"
+  ],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "label": { "type": "string", "minLength": 1 },
+    "type": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "summary": { "type": "string", "minLength": 1 },
+    "expected_content": { "type": "string", "minLength": 1 },
+    "visual_hint": { "type": "string", "minLength": 1 },
+    "content_type": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "image_required": { "type": "boolean" },
+    "overlay_content": { "type": ["string", "null"] },
+    "html_content": {
+      "type": "string",
+      "minLength": 1,
+      "description": "사실값을 고정하지 않는 자리표시자 기반 HTML 예시"
+    },
+    "html_structure": { "type": "string", "minLength": 1 }
+  }
+}

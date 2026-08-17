@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="380" viewBox="0 0 1200 380" role="img" aria-labelledby="title desc">
+  <title id="title">Funding Story AI</title>
+  <desc id="desc">Product facts flow through structured generation into a reviewable funding story.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#071426"/>
+      <stop offset="0.52" stop-color="#102B42"/>
+      <stop offset="1" stop-color="#0E5B59"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5EEAD4"/>
+      <stop offset="1" stop-color="#A7F3D0"/>
+    </linearGradient>
+    <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M28 0H0V28" fill="none" stroke="#B8FFF3" stroke-opacity="0.055"/>
+    </pattern>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#020617" flood-opacity="0.32"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="380" rx="28" fill="url(#bg)"/>
+  <rect width="1200" height="380" rx="28" fill="url(#grid)"/>
+  <circle cx="1080" cy="-15" r="210" fill="#2DD4BF" opacity="0.07"/>
+  <circle cx="1130" cy="350" r="155" fill="#A7F3D0" opacity="0.06"/>
+
+  <g transform="translate(72 70)">
+    <rect width="64" height="64" rx="18" fill="url(#accent)"/>
+    <path d="M18 21h28M18 32h21M18 43h15" stroke="#07333A" stroke-width="5" stroke-linecap="round"/>
+    <text x="0" y="112" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="56" font-weight="750" letter-spacing="-1.5">Funding Story AI</text>
+    <text x="0" y="154" fill="#B6D7D8" font-family="Inter, Arial, sans-serif" font-size="22">From product facts to a reviewable crowdfunding story.</text>
+    <g transform="translate(0 192)">
+      <rect width="162" height="38" rx="19" fill="#D9FFF7" opacity="0.12" stroke="#7DE8D9" stroke-opacity="0.35"/>
+      <text x="81" y="25" text-anchor="middle" fill="#C9FFF6" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="650">FACT-AWARE</text>
+      <rect x="174" width="186" height="38" rx="19" fill="#D9FFF7" opacity="0.12" stroke="#7DE8D9" stroke-opacity="0.35"/>
+      <text x="267" y="25" text-anchor="middle" fill="#C9FFF6" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="650">SCHEMA-FIRST</text>
+      <rect x="372" width="188" height="38" rx="19" fill="#D9FFF7" opacity="0.12" stroke="#7DE8D9" stroke-opacity="0.35"/>
+      <text x="466" y="25" text-anchor="middle" fill="#C9FFF6" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="650">HUMAN REVIEW</text>
+    </g>
+  </g>
+
+  <g transform="translate(760 70)" filter="url(#shadow)" font-family="Inter, Arial, sans-serif">
+    <rect width="360" height="238" rx="24" fill="#F8FAFC"/>
+    <text x="28" y="38" fill="#0F172A" font-size="13" font-weight="700" letter-spacing="1.4">STORY PIPELINE</text>
+    <g transform="translate(28 60)">
+      <rect width="304" height="42" rx="11" fill="#ECFDF5"/>
+      <circle cx="22" cy="21" r="8" fill="#14B8A6"/>
+      <text x="42" y="27" fill="#164E63" font-size="15" font-weight="650">Product facts &amp; evidence</text>
+      <path d="M152 45v14" stroke="#94A3B8" stroke-width="2" stroke-linecap="round"/>
+      <path d="m147 55 5 6 5-6" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g transform="translate(28 119)">
+      <rect width="304" height="42" rx="11" fill="#E0F2FE"/>
+      <circle cx="22" cy="21" r="8" fill="#0EA5E9"/>
+      <text x="42" y="27" fill="#0C4A6E" font-size="15" font-weight="650">Template-guided generation</text>
+      <path d="M152 45v14" stroke="#94A3B8" stroke-width="2" stroke-linecap="round"/>
+      <path d="m147 55 5 6 5-6" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g transform="translate(28 178)">
+      <rect width="304" height="42" rx="11" fill="#F0FDFA" stroke="#99F6E4"/>
+      <circle cx="22" cy="21" r="8" fill="#0F766E"/>
+      <text x="42" y="27" fill="#134E4A" font-size="15" font-weight="650">Validated JSON &amp; HTML draft</text>
+    </g>
+  </g>
+</svg>
