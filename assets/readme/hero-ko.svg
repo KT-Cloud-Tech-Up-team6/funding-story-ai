@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="380" viewBox="0 0 1200 380" role="img" aria-labelledby="title desc">
   <title id="title">Funding Story AI</title>
-  <desc id="desc">Product facts flow through structured generation into a reviewable funding story.</desc>
+  <desc id="desc">제품 대화가 MCP 기반 검색과 생성을 거쳐 검토 가능한 텍스트, 이미지, HTML로 변환됩니다.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#071426"/>
@@ -27,39 +27,39 @@
   <g transform="translate(72 70)">
     <rect width="64" height="64" rx="18" fill="url(#accent)"/>
     <path d="M18 21h28M18 32h21M18 43h15" stroke="#07333A" stroke-width="5" stroke-linecap="round"/>
-    <text x="0" y="112" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="56" font-weight="750" letter-spacing="-1.5">Funding Story AI</text>
-    <text x="0" y="154" fill="#B6D7D8" font-family="Inter, Arial, sans-serif" font-size="22">From product facts to a reviewable crowdfunding story.</text>
+    <text x="0" y="112" fill="#F8FAFC" font-family="Pretendard, Noto Sans KR, Arial, sans-serif" font-size="56" font-weight="750" letter-spacing="-1.5">Funding Story AI</text>
+    <text x="0" y="154" fill="#B6D7D8" font-family="Pretendard, Noto Sans KR, Arial, sans-serif" font-size="21">대화에서 검토 가능한 텍스트·이미지·HTML까지</text>
     <g transform="translate(0 192)">
       <rect width="162" height="38" rx="19" fill="#D9FFF7" opacity="0.12" stroke="#7DE8D9" stroke-opacity="0.35"/>
-      <text x="81" y="25" text-anchor="middle" fill="#C9FFF6" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="650">FACT-AWARE</text>
+      <text x="81" y="25" text-anchor="middle" fill="#C9FFF6" font-family="Pretendard, Noto Sans KR, Arial, sans-serif" font-size="14" font-weight="650">대화 입력</text>
       <rect x="174" width="186" height="38" rx="19" fill="#D9FFF7" opacity="0.12" stroke="#7DE8D9" stroke-opacity="0.35"/>
-      <text x="267" y="25" text-anchor="middle" fill="#C9FFF6" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="650">SCHEMA-FIRST</text>
+      <text x="267" y="25" text-anchor="middle" fill="#C9FFF6" font-family="Pretendard, Noto Sans KR, Arial, sans-serif" font-size="14" font-weight="650">MCP 연결</text>
       <rect x="372" width="188" height="38" rx="19" fill="#D9FFF7" opacity="0.12" stroke="#7DE8D9" stroke-opacity="0.35"/>
-      <text x="466" y="25" text-anchor="middle" fill="#C9FFF6" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="650">HUMAN REVIEW</text>
+      <text x="466" y="25" text-anchor="middle" fill="#C9FFF6" font-family="Pretendard, Noto Sans KR, Arial, sans-serif" font-size="14" font-weight="650">사람 검토</text>
     </g>
   </g>
 
-  <g transform="translate(760 70)" filter="url(#shadow)" font-family="Inter, Arial, sans-serif">
+  <g transform="translate(760 70)" filter="url(#shadow)" font-family="Pretendard, Noto Sans KR, Arial, sans-serif">
     <rect width="360" height="238" rx="24" fill="#F8FAFC"/>
-    <text x="28" y="38" fill="#0F172A" font-size="13" font-weight="700" letter-spacing="1.4">STORY PIPELINE</text>
+    <text x="28" y="38" fill="#0F172A" font-size="13" font-weight="700" letter-spacing="1.4">생성 흐름</text>
     <g transform="translate(28 60)">
       <rect width="304" height="42" rx="11" fill="#ECFDF5"/>
       <circle cx="22" cy="21" r="8" fill="#14B8A6"/>
-      <text x="42" y="27" fill="#164E63" font-size="15" font-weight="650">Product facts &amp; evidence</text>
+      <text x="42" y="27" fill="#164E63" font-size="15" font-weight="650">대화 및 구조화 입력</text>
       <path d="M152 45v14" stroke="#94A3B8" stroke-width="2" stroke-linecap="round"/>
       <path d="m147 55 5 6 5-6" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </g>
     <g transform="translate(28 119)">
       <rect width="304" height="42" rx="11" fill="#E0F2FE"/>
       <circle cx="22" cy="21" r="8" fill="#0EA5E9"/>
-      <text x="42" y="27" fill="#0C4A6E" font-size="15" font-weight="650">Template-guided generation</text>
+      <text x="42" y="27" fill="#0C4A6E" font-size="15" font-weight="650">MCP 및 구성 양식 검색</text>
       <path d="M152 45v14" stroke="#94A3B8" stroke-width="2" stroke-linecap="round"/>
       <path d="m147 55 5 6 5-6" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </g>
     <g transform="translate(28 178)">
       <rect width="304" height="42" rx="11" fill="#F0FDFA" stroke="#99F6E4"/>
       <circle cx="22" cy="21" r="8" fill="#0F766E"/>
-      <text x="42" y="27" fill="#134E4A" font-size="15" font-weight="650">Validated JSON &amp; HTML draft</text>
+      <text x="42" y="27" fill="#134E4A" font-size="15" font-weight="650">텍스트·이미지·HTML 출력</text>
     </g>
   </g>
 </svg>
