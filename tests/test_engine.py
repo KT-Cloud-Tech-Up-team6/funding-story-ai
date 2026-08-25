@@ -1,4 +1,3 @@
-from decimal import Decimal
 from typing import Any
 
 from funding_story_ai.data_repository import DataRepository
@@ -7,7 +6,7 @@ from funding_story_ai.engine import (
     StoryExecutionInput,
     StoryMakerExecutor,
 )
-from funding_story_ai.image_generation import ImageResult, ImageSettings, ImageUsage
+from funding_story_ai.image_generation import ImageResult, ImageSettings
 
 
 class _Pipeline:
@@ -68,12 +67,10 @@ class _IntegratedPipeline:
         )
         return {
             "schema_version": "story-result-v1",
-            "request_id": "integrated-test",
             "language": "ko",
             "template_id": template["id"],
             "template_version": "0.1.0",
             "model": "gemini-test",
-            "prompt_version": "story-generation-v5",
             "title_candidates": ["통합 실행 테스트"],
             "sections": [
                 {
@@ -98,28 +95,11 @@ class _IntegratedPipeline:
             "warnings": self.warnings,
             "automated_validation_passed": not self.warnings,
             "review_required": True,
-            "usage": {
-                "prompt_tokens": 1,
-                "output_tokens": 1,
-                "thinking_tokens": 0,
-                "duration_ms": 1,
-                "attempts": 1,
-                "model_calls": 1,
-            },
         }
-
-
-class _ImageLedger:
-    def __init__(self) -> None:
-        self.reserves = []
-
-    def assert_can_call(self, reserve):
-        self.reserves.append(reserve)
 
 
 class _IntegratedImages:
     def __init__(self, fail_section: str | None = None) -> None:
-        self.ledger = _ImageLedger()
         self.fail_section = fail_section
 
     def edit_reference(self, *, section_id, reference_path, prompt):
@@ -129,9 +109,6 @@ class _IntegratedImages:
             section_id=section_id,
             image_bytes=f"image-{section_id}".encode(),
             revised_prompt=None,
-            duration_ms=2,
-            usage=ImageUsage(1, 1, 1),
-            estimated_cost_usd=Decimal("0.001"),
         )
 
     def generate_text(self, *, section_id, prompt):
@@ -143,7 +120,7 @@ class _IntegratedImages:
 def test_integrated_executor_links_story_images_and_html_under_one_run(tmp_path) -> None:
     repository = DataRepository()
     images = _IntegratedImages()
-    settings = ImageSettings(reserve_usd_per_call=Decimal("0.5"))
+    settings = ImageSettings()
     executor = IntegratedStoryMakerExecutor(
         repository=repository,
         pipeline=_IntegratedPipeline(repository),  # type: ignore[arg-type]
@@ -167,7 +144,6 @@ def test_integrated_executor_links_story_images_and_html_under_one_run(tmp_path)
     assert result["images"]["requested"] == 3
     assert result["images"]["succeeded"] == 3
     assert result["images"]["qa_pending"] == 3
-    assert images.ledger.reserves[0] == Decimal("1.5")
     assert (run_dir / "story.json").is_file()
     assert (run_dir / "brief.json").is_file()
     assert (run_dir / "images" / "manifest.json").is_file()

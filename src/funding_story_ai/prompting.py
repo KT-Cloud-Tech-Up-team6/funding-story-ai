@@ -3,8 +3,6 @@ from __future__ import annotations
 import json
 from typing import Any
 
-PROMPT_VERSION = "funding-story-v1"
-
 
 def build_story_prompt(
     *,

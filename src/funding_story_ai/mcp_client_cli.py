@@ -16,7 +16,6 @@ async def _run(args: argparse.Namespace) -> None:
     brief = repository.load_brief_path(args.brief_path)
     arguments = {
         "request": {
-            "request_id": args.request_id or str(uuid.uuid4()),
             "caller_id": args.caller_id,
             "idempotency_key": args.idempotency_key or str(uuid.uuid4()),
             "brief": brief,
@@ -45,7 +44,6 @@ def main() -> None:
     parser.add_argument("--brief-path", type=Path, required=True)
     parser.add_argument("--reference-image", type=Path)
     parser.add_argument("--caller-id", default="local-cli")
-    parser.add_argument("--request-id")
     parser.add_argument("--idempotency-key")
     parser.add_argument("--template")
     parser.add_argument("--category-profile", default="robot-vacuum-ko-v1")

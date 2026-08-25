@@ -9,7 +9,7 @@ from typing import Any, Protocol
 
 from .data_repository import DataRepository
 from .image_generation import ImageSettings, OpenAIImageAdapter
-from .image_pipeline import file_sha256, generate_section_images, planned_image_sections
+from .image_pipeline import file_sha256, generate_section_images
 from .pipeline import StoryPipeline
 from .preview import write_story_preview
 
@@ -101,15 +101,6 @@ class IntegratedStoryMakerExecutor:
                 ],
             ]
         )
-        plans = planned_image_sections(
-            story,
-            template,
-            reference_available=value.reference_image_path is not None,
-            visual_identity=visual_identity,
-        )
-        self.image_adapter.ledger.assert_can_call(
-            self.image_settings.reserve_usd_per_call * len(plans)
-        )
         images_dir = value.output_dir / "images"
         manifest = generate_section_images(
             story_path=story_path,
@@ -158,7 +149,6 @@ class IntegratedStoryMakerExecutor:
                 "requested": manifest["requested"],
                 "succeeded": manifest["succeeded"],
                 "failed": manifest["failed"],
-                "estimated_cost_usd": manifest["estimated_cost_usd"],
                 "qa_pending": sum(
                     asset["qa_status"] == "pending" for asset in manifest["assets"]
                 ),

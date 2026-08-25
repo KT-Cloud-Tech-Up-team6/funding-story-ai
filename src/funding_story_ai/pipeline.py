@@ -6,7 +6,7 @@ from langgraph.graph import END, START, StateGraph
 
 from .adapter import GeminiAdapter, GenerationResult
 from .data_repository import DataRepository, DataValidationError
-from .prompting import PROMPT_VERSION, build_story_prompt
+from .prompting import build_story_prompt
 from .selector import TemplateSelection, TemplateSelector
 from .validation import StoryValidator, StoryWarning
 
@@ -36,7 +36,6 @@ class StoryPipelineState(TypedDict, total=False):
     prompt: str
     content: dict[str, Any]
     generation: GenerationResult
-    generation_history: list[GenerationResult]
     warnings: list[StoryWarning]
     retry_count: int
     schema_error: str | None
@@ -117,7 +116,6 @@ class StoryPipeline:
         )
         return {
             "generation": generation,
-            "generation_history": state.get("generation_history", []) + [generation],
             "content": generation.data,
             "status": "validating",
         }
@@ -156,36 +154,19 @@ class StoryPipeline:
                 f"{state['schema_error']}"
             )
         generation = state["generation"]
-        generation_history = state["generation_history"]
         content = state["content"]
         warnings = state.get("warnings", [])
         result = {
             "schema_version": "story-result-v1",
-            "request_id": generation.request_id,
             "language": "ko",
             "template_id": state["template"]["id"],
             "template_version": state["template_version"],
             "model": generation.model,
-            "prompt_version": PROMPT_VERSION,
             "title_candidates": content["title_candidates"],
             "sections": content["sections"],
             "warnings": [warning.to_dict() for warning in warnings],
             "automated_validation_passed": not warnings,
             "review_required": True,
-            "usage": {
-                "prompt_tokens": sum(
-                    item.usage.prompt_tokens for item in generation_history
-                ),
-                "output_tokens": sum(
-                    item.usage.output_tokens for item in generation_history
-                ),
-                "thinking_tokens": sum(
-                    item.usage.thinking_tokens for item in generation_history
-                ),
-                "duration_ms": sum(item.duration_ms for item in generation_history),
-                "attempts": sum(item.attempts for item in generation_history),
-                "model_calls": len(generation_history),
-            },
         }
         self.repository.validate_story_result(result)
         return {"result": result, "status": "complete"}

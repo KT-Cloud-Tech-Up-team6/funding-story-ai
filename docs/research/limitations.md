@@ -16,13 +16,9 @@
 - 사용자 인증, 권한 분리, 암호화, 보존 정책, webhook callback을 제공하지 않는다.
 - 웹 대화 UI와 장기 대화 session 저장소는 포함하지 않는다.
 
-## 모델과 비용
+## 모델
 
 - 기준 텍스트 모델은 `gemini-3.7-flash`, 폴백은 `gemini-3.6-flash`다.
-- Gemini 3.7 기본 추정은 2026-12-31까지의 공개 도입 단가를 사용한다.
-- 모델 가격, 환율, 이미지 토큰 환산은 변경될 수 있다.
-- 원장은 API 응답 기반 추정치이며 실제 Billing·크레딧 적용 내역과 일치한다고 보장하지 않는다.
-- embedding 호출 비용은 현재 story usage 요약과 별도이며 통합 원장에 합산하지 않는다.
 
 ## 사실성과 규정
 
@@ -45,6 +41,6 @@
 1. 제품 worker 보정 규칙의 외부 holdout 재비교
 2. 두 번째 제품군 profile과 템플릿·질문 일반화 테스트
 3. 고정 평가 질의 집합과 Recall@k / MRR / 잘못된 top-1 측정
-4. embedding cache artifact와 호출 비용 통합
+4. embedding cache artifact 구축
 5. 외부 증빙 검색·문서 검증 인터페이스
 6. 인증·DB·편집 session을 갖춘 API와 웹 UI

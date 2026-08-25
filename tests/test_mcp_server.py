@@ -31,7 +31,6 @@ def test_mcp_contract_task_resource_and_idempotency(tmp_path) -> None:
     server = build_story_mcp_server(service=service)
     arguments = {
         "request": {
-            "request_id": "request-one",
             "caller_id": "worker-one",
             "idempotency_key": "idempotency-one",
             "brief": DataRepository().load_brief(),

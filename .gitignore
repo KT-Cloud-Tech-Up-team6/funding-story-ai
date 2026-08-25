@@ -12,3 +12,5 @@ build/
 *.egg-info/
 reports/*.jsonl
 artifacts/
+internal/
+docs/research/poc-logic-distillation-summary.md

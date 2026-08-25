@@ -15,7 +15,6 @@
     "requested",
     "succeeded",
     "failed",
-    "estimated_cost_usd",
     "assets"
   ],
   "properties": {
@@ -39,7 +38,6 @@
     "requested": { "type": "integer", "minimum": 0 },
     "succeeded": { "type": "integer", "minimum": 0 },
     "failed": { "type": "integer", "minimum": 0 },
-    "estimated_cost_usd": { "type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+)?$" },
     "assets": {
       "type": "array",
       "items": {
@@ -48,12 +46,8 @@
         "required": [
           "section_id",
           "status",
-          "prompt_sha256",
           "path",
           "sha256",
-          "duration_ms",
-          "estimated_cost_usd",
-          "usage",
           "error_type",
           "qa_status",
           "qa_notes"
@@ -61,23 +55,10 @@
         "properties": {
           "section_id": { "type": "string", "minLength": 1 },
           "status": { "enum": ["success", "error"] },
-          "prompt_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
           "path": { "type": ["string", "null"] },
           "sha256": {
             "type": ["string", "null"],
             "pattern": "^[0-9a-f]{64}$"
-          },
-          "duration_ms": { "type": "integer", "minimum": 0 },
-          "estimated_cost_usd": { "type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+)?$" },
-          "usage": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["text_input_tokens", "image_input_tokens", "image_output_tokens"],
-            "properties": {
-              "text_input_tokens": { "type": "integer", "minimum": 0 },
-              "image_input_tokens": { "type": "integer", "minimum": 0 },
-              "image_output_tokens": { "type": "integer", "minimum": 0 }
-            }
           },
           "error_type": { "type": ["string", "null"] },
           "qa_status": { "enum": ["pending", "pass", "conditional", "fail"] },

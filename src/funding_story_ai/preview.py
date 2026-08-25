@@ -121,7 +121,7 @@ def render_story_html(
                 "</figure>"
             )
         body_html = _render_markdown_body(section["body"])
-        traces = "".join(
+        source_fields = "".join(
             f"<code>{_escape(source)}</code>" for source in section["source_fields"]
         )
         section_html.append(
@@ -129,7 +129,7 @@ def render_story_html(
             f'<div class="section-kicker">{index:02d} · {_escape(spec["label"])}</div>'
             f'<h2>{_escape(section["heading"])}</h2>{image}'
             f'<div class="body">{body_html}</div>'
-            f'<details><summary>출처 필드</summary><div class="trace">{traces}</div></details>'
+            f'<details><summary>출처 필드</summary><div class="source-fields">{source_fields}</div></details>'
             "</section>"
         )
     titles = "".join(f"<li>{_escape(title)}</li>" for title in story["title_candidates"])
@@ -155,7 +155,7 @@ figcaption{{margin-top:8px;color:#64748b;font-size:13px}} .body p{{white-space:p
 .body table{{width:100%;border-collapse:collapse;margin:18px 0}} .body th,.body td{{padding:12px;border:1px solid #dbe2ea;text-align:left;vertical-align:top}}
 .body th{{background:var(--surface)}} .body blockquote{{margin:18px 0;padding:14px 18px;border-left:4px solid var(--accent);background:var(--surface)}}
 .body mark{{background:#ccfbf1;padding:0 .15em}}
-details{{margin-top:24px;color:#64748b}} .trace{{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}}
+details{{margin-top:24px;color:#64748b}} .source-fields{{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}}
 code{{padding:3px 7px;background:#f1f5f9;border-radius:6px}} @media(max-width:700px){{.title-panel,.story-section{{padding:28px 22px}}.title-panel h1{{font-size:32px}}}}
 </style>
 </head>

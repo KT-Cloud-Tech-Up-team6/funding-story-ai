@@ -5,13 +5,12 @@ import json
 import os
 import shutil
 from datetime import UTC, datetime
-from decimal import Decimal
 from pathlib import Path
 
 from dotenv import load_dotenv
 
 from .data_repository import DataRepository
-from .image_generation import ImageSettings, ImageUsageLedger, OpenAIImageAdapter
+from .image_generation import ImageSettings, OpenAIImageAdapter
 from .image_pipeline import generate_section_images, planned_image_sections
 from .preview import write_story_preview
 
@@ -58,19 +57,7 @@ def main() -> None:
         quality=os.getenv("OPENAI_IMAGE_QUALITY", "low"),
         output_format=os.getenv("OPENAI_IMAGE_OUTPUT_FORMAT", "jpeg"),
         output_compression=int(os.getenv("OPENAI_IMAGE_OUTPUT_COMPRESSION", "85")),
-        spend_limit_usd=Decimal(os.getenv("OPENAI_SPEND_LIMIT_USD", "5.00")),
-        reserve_usd_per_call=Decimal(
-            os.getenv("OPENAI_IMAGE_RESERVE_USD_PER_CALL", "0.50")
-        ),
-        ledger_path=Path(
-            os.getenv(
-                "OPENAI_IMAGE_USAGE_LEDGER_PATH",
-                "reports/openai-image-usage.jsonl",
-            )
-        ),
     )
-    ledger = ImageUsageLedger(settings.ledger_path, settings.spend_limit_usd)
-    projected_reserve = settings.reserve_usd_per_call * len(plans)
     if args.dry_run:
         print(
             json.dumps(
@@ -81,9 +68,6 @@ def main() -> None:
                     "quality": settings.quality,
                     "section_ids": [plan["section_id"] for plan in plans],
                     "image_count": len(plans),
-                    "projected_reserve_usd": str(projected_reserve),
-                    "spent_estimated_usd": str(ledger.total_estimated_usd()),
-                    "spend_limit_usd": str(settings.spend_limit_usd),
                     "api_key_present": bool(os.getenv("OPENAI_API_KEY", "").strip()),
                 },
                 ensure_ascii=False,
@@ -91,11 +75,9 @@ def main() -> None:
         )
         return
 
-    if ledger.total_estimated_usd() + projected_reserve >= settings.spend_limit_usd:
-        raise RuntimeError("Image batch reserve would reach the OpenAI spend limit")
     live_settings = ImageSettings.from_env()
     output_dir = args.output_dir or _default_output_dir()
-    adapter = OpenAIImageAdapter(live_settings, ledger)
+    adapter = OpenAIImageAdapter(live_settings)
     manifest = generate_section_images(
         story_path=args.story,
         reference_path=args.reference,
@@ -139,7 +121,6 @@ def main() -> None:
                 "requested": manifest["requested"],
                 "succeeded": manifest["succeeded"],
                 "failed": manifest["failed"],
-                "estimated_cost_usd": manifest["estimated_cost_usd"],
             },
             ensure_ascii=False,
         )

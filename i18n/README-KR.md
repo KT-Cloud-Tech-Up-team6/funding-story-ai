@@ -90,12 +90,9 @@ gcloud auth application-default login
 ```dotenv
 GOOGLE_CLOUD_PROJECT=your-gcp-project
 OPENAI_API_KEY=your-openai-api-key
-
-GCP_SPEND_LIMIT_KRW=10000
-OPENAI_SPEND_LIMIT_USD=5.00
 ```
 
-모델, region, 출력 크기와 비용 상한의 전체 설정은 [`.env.example`](../.env.example)에서
+모델, region과 출력 크기의 전체 설정은 [`.env.example`](../.env.example)에서
 확인할 수 있습니다.
 
 ### 3. 생성 서버 실행
@@ -126,7 +123,7 @@ uv run funding-story submit \
 ```text
 brief.json                 # 입력에 사용한 제품 정보 명세
 story.json                 # 생성된 본문과 근거 필드
-images/manifest.json       # 이미지별 상태·비용·검토 상태
+images/manifest.json       # 이미지별 상태·검토 상태
 images/{section}.jpeg      # 영역별 생성 이미지
 preview.html               # 편집 가능한 결과 미리보기
 ```
@@ -231,8 +228,6 @@ flowchart TB
     I --> R["JSON·이미지 생성 목록·HTML"]
 
     E -.-> L["실행 기록 저장소<br/>중복 실행 방지·파일 해시"]
-    G -.-> X["토큰·비용 기록"]
-    I -.-> X
 ```
 
 ### 구성 요소별 책임
@@ -254,14 +249,13 @@ flowchart TB
 | 대화 입력 | Gemini 텍스트·이미지 분석과 LangGraph 질문 흐름 |
 | 생성 권한 | 대화 처리기가 호출할 수 있는 FastMCP 도구 1개 |
 | 통신 | FastMCP 3.x Streamable HTTP, loopback 주소만 허용 |
-| 실행 추적 | 요청자별 중복 실행 방지, 비동기 작업, 실행 결과 조회 |
+| 실행 관리 | 요청자별 중복 실행 방지, 비동기 작업, 실행 결과 조회 |
 | 구성 양식 | 설득 전략 6종, 공통 12개 결과 영역 |
 | 검색 | 후보 16개 전체 cosine KNN, 768차원 `vector`, 제품 분류 가중치 |
 | 텍스트 | Gemini 3.7 Flash 우선, 접근 실패 5회 뒤 3.6 Flash 사용 |
 | 검사 | JSON Schema, 입력에 없는 수치·기능·일정·인증 표현 검사 |
 | 이미지 | `gpt-image-2`, 3개 주요 영역, 이미지별 실패 분리 |
 | 결과 | 제품 정보 명세·본문·이미지 생성 목록·HTML·SHA-256 |
-| 비용 | 호출 전 상한 확인, Gemini와 OpenAI 비용 기록 분리 |
 
 ## 결과 해석
 
@@ -288,7 +282,7 @@ uv run funding-story validate
 
 현재 저장소 기준:
 
-- pytest 68개 통과
+- pytest 62개 통과
 - JSON Schema 11개
 - 12개 영역 구성 양식 6개
 - 검색 후보 16개
@@ -336,4 +330,3 @@ funding-story-ai/
 - 검색 후보 16개는 검색 방식 확인을 위한 축소 집합입니다.
 - 구성 양식과 실제 펀딩 성과 사이의 인과 관계를 검증하지 않았습니다.
 - 외부 사실 검색, 광고 심사와 권리 검토는 포함하지 않습니다.
-- 비용 기록은 추정치이며 실제 청구 금액과 다를 수 있습니다.

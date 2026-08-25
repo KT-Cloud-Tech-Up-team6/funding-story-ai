@@ -19,8 +19,8 @@ class StoryGenerator:
     @classmethod
     def from_env(cls, *, root: Path | None = None) -> StoryGenerator:
         repository = DataRepository(root)
-        settings, ledger = build_runtime()
-        adapter = GeminiAdapter(settings, ledger)
+        settings = build_runtime()
+        adapter = GeminiAdapter(settings)
         return cls(
             repository=repository,
             pipeline=StoryPipeline(repository=repository, adapter=adapter),

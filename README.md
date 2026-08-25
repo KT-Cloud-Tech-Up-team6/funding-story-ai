@@ -94,12 +94,9 @@ Set the following values in `.env`:
 ```dotenv
 GOOGLE_CLOUD_PROJECT=your-gcp-project
 OPENAI_API_KEY=your-openai-api-key
-
-GCP_SPEND_LIMIT_KRW=10000
-OPENAI_SPEND_LIMIT_USD=5.00
 ```
 
-See [`.env.example`](.env.example) for all model, region, output-size, and spending-limit settings.
+See [`.env.example`](.env.example) for all model, region, and output-size settings.
 
 ### 3. Start the generation server
 
@@ -129,7 +126,7 @@ The completed run is written under `artifacts/runs/run-…/`:
 ```text
 brief.json                 # Structured product information used as input
 story.json                 # Generated copy and evidence fields
-images/manifest.json       # Per-image status, cost, and review state
+images/manifest.json       # Per-image status and review state
 images/{section}.jpeg      # Generated section images
 preview.html               # Editable result preview
 ```
@@ -234,8 +231,6 @@ flowchart TB
     I --> R["JSON, image manifest, and HTML"]
 
     E -.-> L["Run repository<br/>idempotency and file hashes"]
-    G -.-> X["Token and cost records"]
-    I -.-> X
 ```
 
 ### Component responsibilities
@@ -257,14 +252,13 @@ See [Architecture](docs/architecture.md) for implementation details.
 | Conversational input | Gemini text and image analysis with a LangGraph question flow |
 | Generation authority | One FastMCP generation tool callable by the conversation worker |
 | Transport | FastMCP 3.x Streamable HTTP restricted to loopback addresses |
-| Run tracking | Per-requester idempotency, asynchronous jobs, and result retrieval |
+| Run management | Per-requester idempotency, asynchronous jobs, and result retrieval |
 | Templates | Six persuasion strategies with 12 common output sections |
 | Retrieval | Full cosine KNN over 16 candidates, 768-dimensional vectors, and category weighting |
 | Text | Gemini 3.7 Flash first; Gemini 3.6 Flash after five access failures |
 | Validation | JSON Schema plus checks for unsupported numbers, features, schedules, and certifications |
 | Images | `gpt-image-2`, three primary sections, isolated per-image failure handling |
 | Result | Product specification, story, image manifest, HTML, and SHA-256 hashes |
-| Cost | Pre-call limits with separate Gemini and OpenAI cost records |
 
 ## Interpreting results
 
@@ -291,7 +285,7 @@ uv run funding-story validate
 
 Current repository checks cover:
 
-- 68 pytest tests
+- 62 pytest tests
 - 11 JSON Schemas
 - Six executable 12-section templates
 - 16 retrieval candidates
@@ -340,4 +334,3 @@ funding-story-ai/
 - The 16 retrieval candidates are a reduced set for testing retrieval behavior.
 - No causal relationship between a template and crowdfunding performance has been established.
 - External fact retrieval, advertising review, and rights review are outside the scope.
-- Cost records are estimates and may differ from billed amounts.

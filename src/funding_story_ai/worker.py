@@ -31,7 +31,6 @@ class WorkerRequest:
     skip_requested: bool = False
     confirmed: bool = False
     caller_id: str = "local-story-worker"
-    request_id: str = ""
     idempotency_key: str = ""
 
 
@@ -79,7 +78,6 @@ class GenerationTool(Protocol):
         brief: dict[str, Any],
         profile_id: str,
         caller_id: str,
-        request_id: str,
         idempotency_key: str,
         reference_image_path: Path | None,
     ) -> dict[str, Any]: ...
@@ -344,13 +342,11 @@ class FastMcpGenerationTool:
         brief: dict[str, Any],
         profile_id: str,
         caller_id: str,
-        request_id: str,
         idempotency_key: str,
         reference_image_path: Path | None,
     ) -> dict[str, Any]:
         arguments = {
             "request": {
-                "request_id": request_id,
                 "caller_id": caller_id,
                 "idempotency_key": idempotency_key,
                 "brief": brief,
@@ -471,7 +467,6 @@ class StoryMakerWorker:
             brief=brief,
             profile_id=request.profile_id,
             caller_id=request.caller_id,
-            request_id=request.request_id or f"worker-{request.input_id}",
             idempotency_key=request.idempotency_key or f"worker-{request.input_id}-v1",
             reference_image_path=reference,
         )
@@ -495,8 +490,8 @@ def build_live_worker(
     """Build the conversation worker while keeping generation behind FastMCP."""
     load_dotenv()
     repository = DataRepository(root)
-    settings, ledger = build_runtime()
-    adapter = GeminiAdapter(settings, ledger)
+    settings = build_runtime()
+    adapter = GeminiAdapter(settings)
     return StoryMakerWorker(
         repository=repository,
         extractor=GeminiSemanticExtractor(repository=repository, adapter=adapter),

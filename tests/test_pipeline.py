@@ -3,7 +3,6 @@ from collections.abc import Iterable
 from funding_story_ai.adapter import GenerationResult
 from funding_story_ai.data_repository import DataRepository
 from funding_story_ai.pipeline import StoryPipeline
-from funding_story_ai.pricing import TokenUsage
 
 
 def _content(repository: DataRepository, *, unsupported_number: bool = False) -> dict:
@@ -48,13 +47,8 @@ class FakeAdapter:
     def generate_json(self, *, prompt: str, response_schema: dict) -> GenerationResult:
         self.prompts.append(prompt)
         return GenerationResult(
-            request_id=f"request-{len(self.prompts)}",
             model="gemini-3.7-flash",
             data=next(self.outcomes),
-            usage=TokenUsage(prompt_tokens=100, output_tokens=50, thinking_tokens=10),
-            duration_ms=200,
-            attempts=1,
-            finish_reason="STOP",
         )
 
 
@@ -69,11 +63,10 @@ def test_pipeline_selects_t02_and_builds_valid_result() -> None:
     assert result["automated_validation_passed"] is True
     assert result["review_required"] is True
     assert result["warnings"] == []
-    assert result["usage"]["model_calls"] == 1
     assert len(result["sections"]) == 12
 
 
-def test_pipeline_corrects_once_and_aggregates_usage() -> None:
+def test_pipeline_corrects_once() -> None:
     repository = DataRepository()
     adapter = FakeAdapter(
         [_content(repository, unsupported_number=True), _content(repository)]
@@ -86,11 +79,3 @@ def test_pipeline_corrects_once_and_aggregates_usage() -> None:
     assert "브리프에서 찾지 못한 수치" in adapter.prompts[1]
     assert result["automated_validation_passed"] is True
     assert result["review_required"] is True
-    assert result["usage"] == {
-        "prompt_tokens": 200,
-        "output_tokens": 100,
-        "thinking_tokens": 20,
-        "duration_ms": 400,
-        "attempts": 2,
-        "model_calls": 2,
-    }

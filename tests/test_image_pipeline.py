@@ -1,8 +1,7 @@
 import json
-from decimal import Decimal
 
 from funding_story_ai.data_repository import DataRepository
-from funding_story_ai.image_generation import ImageResult, ImageSettings, ImageUsage
+from funding_story_ai.image_generation import ImageResult, ImageSettings
 from funding_story_ai.image_pipeline import generate_section_images, planned_image_sections
 from funding_story_ai.preview import render_story_html
 
@@ -29,25 +28,15 @@ def _story(repository: DataRepository) -> dict:
     ]
     return {
         "schema_version": "story-result-v1",
-        "request_id": "test-request",
         "language": "ko",
         "template_id": template["id"],
         "template_version": "0.1.0",
         "model": "gemini-3.7-flash",
-        "prompt_version": "story-generation-v1",
         "title_candidates": ["클린포지 R1"],
         "sections": sections,
         "warnings": [],
         "automated_validation_passed": True,
         "review_required": True,
-        "usage": {
-            "prompt_tokens": 1,
-            "output_tokens": 1,
-            "thinking_tokens": 0,
-            "duration_ms": 1,
-            "attempts": 1,
-            "model_calls": 1,
-        },
     }
 
 
@@ -57,9 +46,6 @@ class FakeImageAdapter:
             section_id=section_id,
             image_bytes=f"image-{section_id}".encode(),
             revised_prompt=None,
-            duration_ms=5,
-            usage=ImageUsage(1, 2, 3),
-            estimated_cost_usd=Decimal("0.001"),
         )
 
     def generate_text(self, *, section_id, prompt):
@@ -67,9 +53,6 @@ class FakeImageAdapter:
             section_id=section_id,
             image_bytes=f"generated-{section_id}".encode(),
             revised_prompt=None,
-            duration_ms=4,
-            usage=ImageUsage(1, 0, 3),
-            estimated_cost_usd=Decimal("0.001"),
         )
 
 
@@ -143,7 +126,6 @@ def test_generate_images_writes_valid_manifest_and_preview(tmp_path) -> None:
     assert manifest["requested"] == 3
     assert manifest["succeeded"] == 3
     assert manifest["failed"] == 0
-    assert manifest["estimated_cost_usd"] == "0.003"
     assert {asset["qa_status"] for asset in manifest["assets"]} == {"pending"}
     repository.validate_story_image_manifest(manifest)
 

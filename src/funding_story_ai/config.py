@@ -2,21 +2,12 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-from decimal import Decimal
-from pathlib import Path
 
 
 def _positive_int(name: str, default: int) -> int:
     value = int(os.getenv(name, str(default)))
     if value < 1:
         raise ValueError(f"{name} must be at least 1")
-    return value
-
-
-def _positive_decimal(name: str, default: str) -> Decimal:
-    value = Decimal(os.getenv(name, default))
-    if value <= 0:
-        raise ValueError(f"{name} must be positive")
     return value
 
 
@@ -29,9 +20,6 @@ class RuntimeSettings:
     primary_access_attempts: int = 5
     max_output_tokens: int = 8192
     thinking_level: str = "LOW"
-    spend_limit_krw: Decimal = Decimal("10000")
-    usd_to_krw: Decimal = Decimal("1500")
-    usage_ledger_path: Path = Path("reports/usage.jsonl")
 
     @classmethod
     def from_env(cls, *, require_project: bool = True) -> RuntimeSettings:
@@ -51,7 +39,4 @@ class RuntimeSettings:
             primary_access_attempts=_positive_int("GEMINI_PRIMARY_ACCESS_ATTEMPTS", 5),
             max_output_tokens=_positive_int("GEMINI_MAX_OUTPUT_TOKENS", 8192),
             thinking_level=thinking_level,
-            spend_limit_krw=_positive_decimal("GCP_SPEND_LIMIT_KRW", "10000"),
-            usd_to_krw=_positive_decimal("USD_TO_KRW", "1500"),
-            usage_ledger_path=Path(os.getenv("USAGE_LEDGER_PATH", "reports/usage.jsonl")),
         )

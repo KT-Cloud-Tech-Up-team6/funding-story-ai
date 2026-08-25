@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://funding-story-ai.local/schemas/story-generation-content.schema.json",
   "title": "Model-generated Story Content",
-  "description": "모델이 생성하는 콘텐츠만 정의한다. 요청 ID·모델·비용 같은 실행 메타데이터는 애플리케이션이 별도로 결합한다.",
+  "description": "모델이 생성하는 콘텐츠만 정의하며 실행 상태와 파일 정보는 애플리케이션이 별도로 결합한다.",
   "type": "object",
   "additionalProperties": false,
   "required": ["title_candidates", "sections"],

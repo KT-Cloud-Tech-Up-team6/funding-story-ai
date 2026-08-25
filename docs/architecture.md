@@ -32,7 +32,6 @@ flowchart TB
         I --> H["HTML Preview"]
     end
 
-    E -.-> L["Usage & Cost Ledgers"]
     H --> S
 ```
 
@@ -113,7 +112,7 @@ top-1이면 조용히 다음 후보로 넘어가지 않고 `NonExecutableTopResu
 3. 구조화 스토리 생성 및 최대 1회 수정
 4. hero·solution·features 이미지 생성
 5. 편집 가능한 HTML 렌더링
-6. 각 파일 SHA-256과 비용·QA 요약 기록
+6. 각 파일 SHA-256과 QA 상태 기록
 
 이미지 한 장의 실패나 스토리 경고는 다른 산출물을 삭제하지 않는다. 대신 run 상태가
 `partial`이 되고 모든 결과는 `review_required: true`다. 기존 output 디렉터리는
@@ -126,14 +125,12 @@ top-1이면 조용히 다음 후보로 넘어가지 않고 `NonExecutableTopResu
 - `category-profile`: 카테고리별 추출·질문 힌트
 - `template-retrieval-index`: 임베딩 설정과 후보 메타데이터
 - `story-template`: 스타일·콘텐츠 전략·12-section 골격
-- `story-result`: 텍스트, source fields, 경고, 사용량
-- `story-image-manifest`: 이미지 비용·해시·QA
+- `story-result`: 텍스트, source fields, 경고
+- `story-image-manifest`: 이미지 파일·해시·QA
 - `integrated-story-run`: 모든 산출물을 연결하는 최상위 결과
 
-## 실패와 비용 처리
+## 실패 처리
 
 - Gemini 3.7 Flash 접근 오류를 최대 5회 확인한 뒤 3.6 Flash로 폴백한다.
-- 모델 호출 전 보수적 최대 토큰과 현재 원장 합계로 상한을 검사한다.
-- 이미지 batch 시작 전 `이미지 수 × 호출 예약액`을 검사한다.
 - 요청 성공·실패를 로컬 run record에 남기고 예외 타입만 저장한다.
 - 구조화 결과가 스키마를 어기면 제한 수정 후 경고가 포함된 결과를 반환한다.

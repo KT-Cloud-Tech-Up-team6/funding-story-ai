@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import asdict
-from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
@@ -124,7 +122,6 @@ def planned_image_sections(
             {
                 "section_id": section["template_section_id"],
                 "prompt": prompt,
-                "prompt_sha256": hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
             }
         )
     return plans
@@ -154,7 +151,6 @@ def generate_section_images(
     )
     output_dir.mkdir(parents=True, exist_ok=False)
     assets: list[dict[str, Any]] = []
-    total_cost = Decimal("0")
     generated_seed_path: Path | None = None
     generated_seed_sha256: str | None = None
     sections_by_id = {
@@ -177,9 +173,6 @@ def generate_section_images(
                         visual_identity=visual_identity,
                     )
                     plan["prompt"] = prompt
-                    plan["prompt_sha256"] = hashlib.sha256(
-                        prompt.encode("utf-8")
-                    ).hexdigest()
                 result = adapter.edit_reference(
                     section_id=plan["section_id"],
                     reference_path=active_reference,
@@ -191,17 +184,12 @@ def generate_section_images(
             if reference_path is None and generated_seed_path is None:
                 generated_seed_path = target
                 generated_seed_sha256 = hashlib.sha256(result.image_bytes).hexdigest()
-            total_cost += result.estimated_cost_usd
             assets.append(
                 {
                     "section_id": plan["section_id"],
                     "status": "success",
-                    "prompt_sha256": plan["prompt_sha256"],
                     "path": filename,
                     "sha256": hashlib.sha256(result.image_bytes).hexdigest(),
-                    "duration_ms": result.duration_ms,
-                    "estimated_cost_usd": str(result.estimated_cost_usd),
-                    "usage": asdict(result.usage),
                     "error_type": None,
                     "qa_status": "pending",
                     "qa_notes": [],
@@ -212,16 +200,8 @@ def generate_section_images(
                 {
                     "section_id": plan["section_id"],
                     "status": "error",
-                    "prompt_sha256": plan["prompt_sha256"],
                     "path": None,
                     "sha256": None,
-                    "duration_ms": 0,
-                    "estimated_cost_usd": "0",
-                    "usage": {
-                        "text_input_tokens": 0,
-                        "image_input_tokens": 0,
-                        "image_output_tokens": 0,
-                    },
                     "error_type": type(exc).__name__,
                     "qa_status": "fail",
                     "qa_notes": ["생성 오류로 미리보기 사용 불가"],
@@ -241,7 +221,6 @@ def generate_section_images(
         "requested": len(plans),
         "succeeded": sum(asset["status"] == "success" for asset in assets),
         "failed": sum(asset["status"] == "error" for asset in assets),
-        "estimated_cost_usd": str(total_cost),
         "assets": assets,
     }
     repository.validate_story_image_manifest(manifest)

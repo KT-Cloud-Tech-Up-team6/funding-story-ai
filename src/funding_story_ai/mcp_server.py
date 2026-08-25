@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 from .adapter import GeminiAdapter
 from .data_repository import DataRepository
 from .engine import IntegratedStoryMakerExecutor, StoryExecutionInput, StoryExecutor
-from .image_generation import ImageSettings, ImageUsageLedger, OpenAIImageAdapter
+from .image_generation import ImageSettings, OpenAIImageAdapter
 from .pipeline import StoryPipeline
 from .run_store import LocalRunStore
 from .smoke import build_runtime
@@ -26,7 +26,6 @@ from .template_retrieval import (
 
 
 class CreateStoryRequest(BaseModel):
-    request_id: str = Field(min_length=1, max_length=128)
     caller_id: str = Field(min_length=1, max_length=128)
     idempotency_key: str = Field(min_length=8, max_length=256)
     brief: dict[str, Any]
@@ -40,7 +39,6 @@ class CreateStoryResponse(BaseModel):
     run_id: str
     status: Literal["completed"]
     result_uri: str
-    request_id: str
     template_id: str
     model: str
     warning_count: int
@@ -62,7 +60,7 @@ class StoryMakerService:
             request_payload=payload,
         )
         if not created:
-            return self._response(request.request_id, record, idempotent_replay=True)
+            return self._response(record, idempotent_replay=True)
         try:
             result = self.executor.execute(
                 StoryExecutionInput(
@@ -83,11 +81,11 @@ class StoryMakerService:
         except Exception as exc:
             self.store.fail(record["run_id"], exc)
             raise
-        return self._response(request.request_id, record, idempotent_replay=False)
+        return self._response(record, idempotent_replay=False)
 
     @staticmethod
     def _response(
-        request_id: str, record: dict[str, Any], *, idempotent_replay: bool
+        record: dict[str, Any], *, idempotent_replay: bool
     ) -> CreateStoryResponse:
         result = record["result"]
         if record["status"] != "completed" or not isinstance(result, dict):
@@ -96,7 +94,6 @@ class StoryMakerService:
             run_id=record["run_id"],
             status="completed",
             result_uri=record["result_uri"],
-            request_id=request_id,
             template_id=result["template_id"],
             model=result["model"],
             warning_count=int(result.get("warning_count", len(result.get("warnings", [])))),
@@ -127,8 +124,8 @@ def build_story_mcp_server(*, service: StoryMakerService) -> FastMCP:
 def build_live_service(root: Path | None = None) -> StoryMakerService:
     load_dotenv()
     repository = DataRepository(root)
-    settings, ledger = build_runtime()
-    adapter = GeminiAdapter(settings, ledger)
+    settings = build_runtime()
+    adapter = GeminiAdapter(settings)
     retriever = ExactKnnTemplateRetriever(
         index=repository.load_template_retrieval_index(),
         embeddings=GeminiEmbeddingProvider(client=adapter.client),
@@ -140,13 +137,10 @@ def build_live_service(root: Path | None = None) -> StoryMakerService:
         selector=RetrievalTemplateSelector(retriever),
     )
     image_settings = ImageSettings.from_env()
-    image_ledger = ImageUsageLedger(
-        image_settings.ledger_path, image_settings.spend_limit_usd
-    )
     executor = IntegratedStoryMakerExecutor(
         repository=repository,
         pipeline=pipeline,
-        image_adapter=OpenAIImageAdapter(image_settings, image_ledger),
+        image_adapter=OpenAIImageAdapter(image_settings),
         image_settings=image_settings,
     )
     store_root = Path(os.getenv("STORY_MCP_RUN_STORE", "artifacts/runs"))
