@@ -1,6 +1,6 @@
 # 적응형 story-maker-worker 설계
 
-- 상태: 핵심 worker 구현 완료, UI 반영 진행 전
+- 상태: 핵심 worker와 별도 Streamlit 브랜치 반영 완료
 - 대상: 사용자 입력부터 FastMCP 생성 도구 호출 직전까지
 - 목표: 단순 규칙형 대화 처리를 세션 상태를 가진 적응형 LangGraph 대화 처리기로 교체
 

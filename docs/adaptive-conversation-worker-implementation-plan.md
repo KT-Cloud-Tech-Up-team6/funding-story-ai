@@ -1,8 +1,8 @@
 # 적응형 story-maker-worker 구현 계획
 
-- 상태: 진행 중
+- 상태: 완료
 - 기준 설계: [적응형 story-maker-worker 설계](./adaptive-conversation-worker-design.md)
-- 구현 브랜치: `main`
+- 구현 브랜치: 핵심 `main`, UI `feat/streamlit-demo`
 - 적용 범위: 사용자 입력부터 승인된 FastMCP 생성 요청까지
 
 ## 1. 요구사항 분석
@@ -96,7 +96,7 @@
   - 검증: README 예제와 API 단위 테스트가 새 계약으로 실행된다.
 - [x] 현재 아키텍처와 한국어·영어 README를 실제 구현 상태에 맞게 수정한다.
   - 검증: 문서의 단계·승인·메모리 설명이 코드와 일치한다.
-- [ ] 핵심 worker 완료 후 Streamlit 브랜치가 새 세션 API만 사용하도록 갱신한다.
+- [x] 핵심 worker 완료 후 Streamlit 브랜치가 새 세션 API만 사용하도록 갱신한다.
   - 검증: UI 테스트에서 질문·요약·승인·결과 단계를 표현한다.
 
 ## 4. 평가 체크리스트
