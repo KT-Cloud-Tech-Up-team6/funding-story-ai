@@ -55,12 +55,18 @@ generation, image generation, validation, and HTML rendering as an asynchronous 
   review.
 - Produces section-level image instructions from the selected layout.
 
-### Reviewable images and HTML
+### Planned images and publishable HTML
 
-- Uses the configured OpenAI image model first and a Gemini image model as fallback.
-- Records provider, model, MIME type, attempts, hash, and review state in an image manifest.
-- Marks generated images as awaiting human review and keeps validation warnings with the result.
-- Writes both a standalone preview and a conservative HTML fragment for editor import.
+- Normalizes approved product facts into eight robot-vacuum capability groups.
+- Combines the selected story template with a product-family media profile to create a dynamic
+  `MediaPlan` of up to eight grounded image slots.
+- Uses Nano Banana 2 (`gemini-3.1-flash-image`) with Nano Banana 2 Lite
+  (`gemini-3.1-flash-lite-image`) as a bounded fallback, and sends only each slot's declared
+  reference assets.
+- Records model, attempts, hashes, grounding references, and human-review checks in an image
+  manifest.
+- Always writes a clean 740 px draft page. Publishable HTML is emitted only after required facts,
+  assets, generation, and image review have all passed.
 
 ## 🚀 Quick Start
 
@@ -78,12 +84,12 @@ gcloud auth application-default login
 
 ### 2. Configure
 
-Set the Google Cloud project in `.env`. `OPENAI_API_KEY` is optional; when it is not set, image
-generation uses the configured Gemini image model.
+Set the Google Cloud project in `.env`.
 
 ```dotenv
 GOOGLE_CLOUD_PROJECT=your-gcp-project
-OPENAI_API_KEY=your-openai-api-key
+GEMINI_IMAGE_MODEL=gemini-3.1-flash-image
+GEMINI_IMAGE_FALLBACK_MODEL=gemini-3.1-flash-lite-image
 ```
 
 Model, retry, output, and retrieval settings are listed in [`.env.example`](.env.example).
@@ -96,20 +102,20 @@ uv run funding-story server --host 127.0.0.1 --port 8765
 
 The server listens on the local loopback address.
 
-### 4. Generate the included example
+### 4. Submit an approved generation package
 
 Run this in a second terminal:
 
 ```bash
 uv run funding-story submit \
-  --brief-path examples/robot-vacuum/brief.json \
-  --reference-image examples/robot-vacuum/product-reference.png \
+  --generation-package path/to/approved-generation-package.json \
   --idempotency-key robot-vacuum-demo-v2 \
   --live
 ```
 
-The command submits the run and polls its `story://runs/{run_id}` resource until it completes or
-fails.
+The package is produced by `StoryGenerationDispatcher` only after the conversation's current
+summary is explicitly approved. The command submits that immutable package and polls its
+`story://runs/{run_id}` resource until completion or failure.
 
 ## Conversational API
 
@@ -175,7 +181,7 @@ flowchart TB
     CP <--> O
     CP <--> A
 
-    R -.->|"Separate explicit dispatch"| B["Grounded story specification"]
+    R -.->|"Separate explicit dispatch"| B["Approved generation package<br/>revisions + digests"]
     B --> MC["FastMCP client"]
     MC -->|"Streamable HTTP"| M["create_crowdfunding_story"]
     M -->|"Accepted + result URI"| S["Local run repository"]
@@ -185,8 +191,10 @@ flowchart TB
     K --> T["Structured template"]
     T --> G["Gemini structured text"]
     G --> V["Schema and groundedness checks"]
-    V --> I["Image generation<br/>OpenAI + Gemini fallback"]
-    I --> H["Story JSON + image manifest<br/>editor HTML + preview"]
+    V --> NF["MediaFacts normalization"]
+    NF --> MP["StoryTemplate + MediaProfile<br/>dynamic MediaPlan"]
+    MP --> I["Nano Banana 2<br/>Lite fallback"]
+    I --> H["Story + MediaPlan + manifest<br/>draft / publishable HTML"]
     H --> S
     S --> Z["story://runs/{run_id}"]
 ```
@@ -201,10 +209,12 @@ A completed run contains the following artifacts:
 ```text
 brief.json                 # Grounded structured input
 story.json                 # Generated sections and source fields
-images/manifest.json       # Provider, attempts, hashes, and review states
-images/{section}.{format}  # Images requested by the selected layout
-editor.html                # Editable HTML fragment
-preview.html               # Standalone review preview
+media-facts.json            # Approved facts normalized for media planning
+media-plan.json             # Active slots, placement, references, and placeholders
+images/manifest.json        # Models, attempts, hashes, grounding, and review checks
+images/{slot}.{format}      # Independently generated MediaPlan slot images
+draft.html                  # Pure funding-page HTML with fixed placeholders
+publishable.html            # Present only after every publishing gate passes
 ```
 
 The same caller, idempotency key, and input return the existing run. Reusing an idempotency key with

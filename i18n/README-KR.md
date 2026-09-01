@@ -51,12 +51,16 @@ Funding Story AI는 펀딩 스토리를 준비하기 위한 검토 중심 파이
 - 선택된 영역 구조를 Gemini가 채우며, 검토를 위해 입력 출처 필드를 함께 보존합니다.
 - 선택된 구성 양식에 따라 영역별 이미지 지시를 생성합니다.
 
-### 검토 가능한 이미지와 HTML
+### 계획 기반 이미지와 게시 가능 HTML
 
-- 설정된 OpenAI 이미지 모델을 먼저 사용하고 Gemini 이미지 모델을 폴백으로 사용합니다.
-- 이미지 목록에 공급자, 모델, MIME 유형, 시도 횟수, 해시와 검토 상태를 기록합니다.
-- 생성 이미지를 사람 검토 대기 상태로 표시하고 검증 경고를 결과와 함께 보존합니다.
-- 독립 실행 미리보기와 편집기 가져오기에 사용할 수 있는 보수적인 HTML 조각을 생성합니다.
+- 승인된 제품 사실을 로봇청소기 8개 능력군으로 정규화합니다.
+- 선택된 스토리 구성 양식과 제품군 미디어 프로필을 결합해 최대 8개의 근거 있는 이미지
+  슬롯을 동적으로 계획합니다.
+- Nano Banana 2(`gemini-3.1-flash-image`)를 사용하고 Nano Banana 2 Lite
+  (`gemini-3.1-flash-lite-image`)를 제한적으로 폴백하며 슬롯에 지정된 참조 자산만 전달합니다.
+- 모델·시도 횟수·해시·근거 참조와 사람 검토 항목을 이미지 목록에 기록합니다.
+- 740px 순수 초안 HTML은 항상 만들고 필수 정보·자산·생성·이미지 검토를 모두 통과한
+  경우에만 게시 가능 HTML을 만듭니다.
 
 ## 🚀 빠른 시작
 
@@ -74,12 +78,12 @@ gcloud auth application-default login
 
 ### 2. 환경 설정
 
-`.env`에 Google Cloud 프로젝트를 설정합니다. `OPENAI_API_KEY`는 선택 사항이며, 설정하지
-않으면 Gemini 이미지 모델을 사용합니다.
+`.env`에 Google Cloud 프로젝트를 설정합니다.
 
 ```dotenv
 GOOGLE_CLOUD_PROJECT=your-gcp-project
-OPENAI_API_KEY=your-openai-api-key
+GEMINI_IMAGE_MODEL=gemini-3.1-flash-image
+GEMINI_IMAGE_FALLBACK_MODEL=gemini-3.1-flash-lite-image
 ```
 
 모델·재시도·출력·검색 설정은 [`.env.example`](../.env.example)에 정리되어 있습니다.
@@ -92,19 +96,20 @@ uv run funding-story server --host 127.0.0.1 --port 8765
 
 서버는 로컬 loopback 주소에서만 요청을 받습니다.
 
-### 4. 포함된 예제 생성
+### 4. 승인된 생성 패키지 제출
 
 두 번째 터미널에서 실행합니다.
 
 ```bash
 uv run funding-story submit \
-  --brief-path examples/robot-vacuum/brief.json \
-  --reference-image examples/robot-vacuum/product-reference.png \
+  --generation-package path/to/approved-generation-package.json \
   --idempotency-key robot-vacuum-demo-v2 \
   --live
 ```
 
-명령은 작업을 제출하고 `story://runs/{run_id}` 리소스가 완료 또는 실패할 때까지 조회합니다.
+생성 패키지는 현재 대화 요약을 사용자가 명시적으로 승인한 뒤
+`StoryGenerationDispatcher`가 만듭니다. 명령은 이 불변 패키지를 제출하고
+`story://runs/{run_id}` 리소스가 완료 또는 실패할 때까지 조회합니다.
 
 ## 대화 API
 
@@ -169,7 +174,7 @@ flowchart TB
     CP <--> O
     CP <--> A
 
-    R -.->|"별도 명시적 제출"| B["입력 근거 스토리 명세"]
+    R -.->|"별도 명시적 제출"| B["승인된 생성 패키지<br/>revision + digest"]
     B --> MC["FastMCP 클라이언트"]
     MC -->|"Streamable HTTP"| M["create_crowdfunding_story"]
     M -->|"접수 + 결과 URI"| S["로컬 실행 저장소"]
@@ -179,8 +184,10 @@ flowchart TB
     K --> T["구조화 구성 양식"]
     T --> G["Gemini 구조화 본문"]
     G --> V["스키마·입력 근거 검증"]
-    V --> I["이미지 생성<br/>OpenAI + Gemini 폴백"]
-    I --> H["스토리 JSON + 이미지 목록<br/>편집 HTML + 미리보기"]
+    V --> NF["MediaFacts 의미 정규화"]
+    NF --> MP["StoryTemplate + MediaProfile<br/>동적 MediaPlan"]
+    MP --> I["Nano Banana 2<br/>Lite 폴백"]
+    I --> H["스토리 + MediaPlan + 이미지 목록<br/>초안 / 게시 가능 HTML"]
     H --> S
     S --> Z["story://runs/{run_id}"]
 ```
@@ -195,10 +202,12 @@ flowchart TB
 ```text
 brief.json                 # 입력에 근거한 구조화 정보
 story.json                 # 생성 영역과 출처 필드
-images/manifest.json       # 공급자·시도·해시·검토 상태
-images/{section}.{format}  # 선택된 구성 양식이 요청한 이미지
-editor.html                # 편집 가능한 HTML 조각
-preview.html               # 독립 실행 검토 미리보기
+media-facts.json            # 미디어 계획용으로 정규화된 승인 사실
+media-plan.json             # 활성 슬롯·배치·참조와 placeholder
+images/manifest.json        # 모델·시도·해시·근거와 검토 항목
+images/{slot}.{format}      # 독립 생성한 MediaPlan 슬롯 이미지
+draft.html                  # 고정 placeholder가 있는 순수 초안 HTML
+publishable.html            # 모든 게시 gate 통과 시에만 생성
 ```
 
 같은 호출자·멱등성 키·입력을 다시 제출하면 기존 실행을 반환합니다. 다른 입력에 같은
