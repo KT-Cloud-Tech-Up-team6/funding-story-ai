@@ -39,6 +39,7 @@ from .conversation import (
     validate_summary_grounding,
 )
 from .data_repository import DataRepository
+from .media_projection import build_approved_generation_package
 from .smoke import build_runtime
 
 WorkerStatus = Literal[
@@ -157,10 +158,9 @@ class GenerationTool(Protocol):
     async def create(
         self,
         *,
-        brief: dict[str, Any],
+        generation_package: dict[str, Any],
         caller_id: str,
         idempotency_key: str,
-        reference_image_path: Path | None,
     ) -> dict[str, Any]: ...
 
 
@@ -761,18 +761,16 @@ class FastMcpGenerationTool:
     async def create(
         self,
         *,
-        brief: dict[str, Any],
+        generation_package: dict[str, Any],
         caller_id: str,
         idempotency_key: str,
-        reference_image_path: Path | None,
     ) -> dict[str, Any]:
         arguments = {
             "request": {
                 "caller_id": caller_id,
                 "idempotency_key": idempotency_key,
-                "brief": brief,
+                "generation_package": generation_package,
                 "template_id": None,
-                "reference_image_path": str(reference_image_path) if reference_image_path else None,
             }
         }
         async with Client(self.server) as client:
@@ -812,16 +810,25 @@ class StoryGenerationDispatcher:
         semantic_state = graph_state_to_semantic_state(input_id=request.input_id, state=state)
         self.repository.validate_intake_semantic_state(semantic_state)
         brief = self.brief_builder.build(request, semantic_state)
-        reference = Path(state["image_path"]) if state.get("image_path") else None
+        local_asset_paths = {}
+        if state.get("image_path"):
+            local_asset_paths["asset_product_reference"] = Path(state["image_path"])
+        generation_package = build_approved_generation_package(
+            repository=self.repository,
+            input_id=request.input_id,
+            thread_id=request.thread_id,
+            state=state,
+            brief=brief,
+            local_asset_paths=local_asset_paths,
+        )
         summary_version = int(state["approved_summary_version"])
         idempotency_key = request.idempotency_key or (
             f"worker-{request.thread_id}-summary-{summary_version}"
         )
         return await self.generation_tool.create(
-            brief=brief,
+            generation_package=generation_package,
             caller_id=request.caller_id,
             idempotency_key=idempotency_key,
-            reference_image_path=reference,
         )
 
 

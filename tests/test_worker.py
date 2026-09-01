@@ -297,6 +297,10 @@ def test_mcp_dispatch_is_a_separate_explicit_operation() -> None:
     assert builder.calls == 1
     assert len(tool.calls) == 1
     assert tool.calls[0]["idempotency_key"] == "worker-worker-dispatch-summary-1"
+    package = tool.calls[0]["generation_package"]
+    assert package["approval"]["status"] == "approved"
+    assert package["approval"]["summary_version"] == state["summary_version"]
+    assert package["worker_projection"]["facts_revision"] == state["facts_revision"]
 
 
 def test_mcp_dispatch_rejects_state_before_generation_ready() -> None:
