@@ -6,9 +6,11 @@ from funding_story_ai.engine import (
     IntegratedStoryMakerExecutor,
     StoryExecutionInput,
     StoryMakerExecutor,
+    review_integrated_story_run,
 )
 from funding_story_ai.image_generation import ImageResult, ImageSettings
 from funding_story_ai.media_projection import build_approved_generation_package
+from funding_story_ai.run_store import LocalRunStore
 
 
 def _generation_package(repository: DataRepository, reference=None):
@@ -308,3 +310,49 @@ def test_integrated_executor_marks_story_warning_as_partial(tmp_path) -> None:
     )
     assert result["status"] == "partial"
     assert result["warning_count"] == 1
+    assert result["publishable_html"] is None
+
+
+def test_review_integrated_run_renders_publishable_html_after_all_checks_pass(tmp_path) -> None:
+    repository = DataRepository()
+    store = LocalRunStore(tmp_path / "runs")
+    record, created = store.begin(
+        caller_id="review-test",
+        idempotency_key="review-test-key",
+        request_payload={"brief_id": "engine-test"},
+    )
+    assert created is True
+    run_id = record["run_id"]
+    reference = tmp_path / "reference.jpg"
+    reference.write_bytes(b"reference")
+    result = _integrated(repository, _Images()).execute(
+        StoryExecutionInput(
+            generation_package=_generation_package(repository, reference),
+            template_id="t04_full_campaign",
+            run_id=run_id,
+            output_dir=store.root / run_id,
+        )
+    )
+    store.complete(run_id, result)
+    review = review_integrated_story_run(
+        repository=repository,
+        store=store,
+        run_id=run_id,
+        reviews={
+            "slot_product_identity_outcome_01": {
+                "qa_status": "pass",
+                "review_checks": {
+                    "scene_distinctness": "pass",
+                    "product_fidelity": "pass",
+                    "text_legibility": "pass",
+                    "claim_grounding": "pass",
+                },
+                "qa_notes": ["사람 검토 완료"],
+            }
+        },
+    )
+    assert review["publishable"] is True
+    assert (store.root / run_id / "publishable.html").is_file()
+    updated = review["run"]
+    assert updated["result"]["images"]["qa_pending"] == 0
+    assert updated["result"]["publishable_html"]["path"] == "publishable.html"

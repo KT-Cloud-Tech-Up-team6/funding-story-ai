@@ -123,7 +123,10 @@ def _media_html(
 
 
 def can_render_publishable(
-    *, media_plan: dict[str, Any], manifest: dict[str, Any]
+    *,
+    media_plan: dict[str, Any],
+    manifest: dict[str, Any],
+    story: dict[str, Any] | None = None,
 ) -> bool:
     assets = manifest["assets"]
     return bool(
@@ -131,6 +134,7 @@ def can_render_publishable(
         and not media_plan["placeholders"]
         and manifest["requested"] == manifest["succeeded"]
         and all(asset["qa_status"] == "pass" for asset in assets)
+        and (story is None or not story.get("warnings"))
     )
 
 
@@ -143,7 +147,7 @@ def render_funding_story_html(
     mode: Literal["draft", "publishable"] = "draft",
 ) -> str:
     if mode == "publishable" and not can_render_publishable(
-        media_plan=media_plan, manifest=manifest
+        media_plan=media_plan, manifest=manifest, story=story
     ):
         raise ValueError("Publishable HTML requires complete facts, assets, and passed image review")
     colors = template["style"]["color_palette"]
